@@ -1,7 +1,7 @@
 import json
 from typing import Any, Union, List, Iterable
 
-from core.cosmos.query import Parameter, eq_, ne_, gt_, gte_, lt_, lte_
+from cosmostic.query import Parameter, eq_, ne_, gt_, gte_, lt_, lte_
 
 
 class FieldProxy:

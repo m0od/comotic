@@ -1,10 +1,12 @@
-from inspect import Parameter
-from typing import Union, Any, TYPE_CHECKING
+from typing import Union, Any
 
-if TYPE_CHECKING:
-    pass
 
 FieldProxyAny = Union["FieldProxy", Any]
+
+
+class Parameter:
+    def __init__(self, name):
+        self.name = name
 
 
 def _cmp_expression(syntax: str, op: str, value: Union[Any, Parameter]):
@@ -37,19 +39,3 @@ def lt_(syntax: Any, value: Union[Any, Parameter]):
 
 def lte_(syntax: Any, value: Union[Any, Parameter]):
     return _cmp_expression(syntax, "<=", value)
-
-
-#
-# def size_(fields: FieldProxyAny):
-#     return _cmp_expression(fields, syntax="ARRAY_SIZE({fields})")
-#
-#
-# def set_intersect_(fields: FieldProxyAny, value: Iterable):
-#     return _cmp_expression(
-#         fields, syntax="SetIntersect({fields}, {value})", op="", cmp_value=value
-#     )
-
-
-class Parameter:
-    def __init__(self, name):
-        self.name = name
