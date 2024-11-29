@@ -39,3 +39,16 @@ def lt_(syntax: Any, value: Union[Any, Parameter]):
 
 def lte_(syntax: Any, value: Union[Any, Parameter]):
     return _cmp_expression(syntax, "<=", value)
+
+
+class QueryExpression:
+    def __init__(self, field: Any, operator: str = None, value: Any = None):
+        self.field = field
+        self.operator = operator
+        self.value = value
+
+    def __repr__(self):
+        syntax = [self.field]
+        if self.operator:
+            syntax += [self.operator, self.value]
+        return " ".join(syntax)

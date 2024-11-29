@@ -1,11 +1,12 @@
 import json
 from typing import Any, Union, List, Iterable
 
-from cosmostic.query import Parameter, eq_, ne_, gt_, gte_, lt_, lte_
+from cosmostic.enums import Syntax
+from cosmostic.query import Parameter, eq_, ne_, gt_, gte_, lt_, lte_, QueryExpression
+from cosmostic.syntax import SyntaxClause
 
 
 class FieldProxy:
-
     def __init__(self, name, _type: Any = None, is_function: bool = False):
         self.name = name
         self.type = _type
@@ -76,20 +77,43 @@ class FieldProxy:
             return FieldProxy(
                 name=f"SetIntersect({self.__name__}, {value})", is_function=True
             )
-        return f"SetIntersect({self.__name__}, {value})"
+        return QueryExpression(field=f"SetIntersect({self.__name__}, {value})")
 
     def __contains__(self, syntax: str, value: Union[Any, Parameter], full_match):
         if isinstance(value, Parameter):
             value = f"@{value.name}"
         elif isinstance(value, Iterable):
             value = json.dumps(value)[1:-1]
-        return f"{syntax}({self.__name__}, {value}, {str(full_match).lower()})"
+        field = "{syntax}(key, {value}, {is_full_match})".format(
+            syntax=self.__name__,
+            value=json.dumps(value),
+            is_full_match=str(full_match).lower(),
+        )
+        return QueryExpression(field=field)
 
-    def contains(self, value: Union[Any, Parameter], full_match: bool = False):
-        return self.__contains__("ARRAY_CONTAINS", value, full_match)
+    def contains(
+        self,
+        value: Union[Any, Parameter],
+        full_match: bool = False,
+    ):
+        return SyntaxClause(Syntax.ARRAY_CONTAINS, self.__name__, value)
+        # return self.__contains__("ARRAY_CONTAINS", value, full_match)
 
     def contains_all(self, value: Union[Any, Parameter], full_match: bool = False):
+        return SyntaxClause(Syntax.ARRAY_CONTAINS_ALL, self.__name__, value)
         return self.__contains__("ARRAY_CONTAINS_ALL", value, full_match)
 
     def contains_any(self, value: Union[Any, Parameter], full_match: bool = False):
         return self.__contains__("ARRAY_CONTAINS_ANY", value, full_match)
+
+    def slide(self, begin: Union[int, Parameter], end: Union[int, Parameter] = None):
+        if isinstance(begin, Parameter):
+            begin = f"@{begin.name}"
+        if isinstance(end, Parameter):
+            end = f"@{end.name}"
+        if end:
+            return QueryExpression(
+                field=f"ARRAY_SLIDE({self.__name__}, {begin}, {end})"
+            )
+        else:
+            return QueryExpression(field=f"ARRAY_SLIDE({self.__name__}, {begin})")

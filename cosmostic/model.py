@@ -4,7 +4,7 @@ from bson import ObjectId
 from pydantic import BaseModel, field_serializer, Field
 from pydantic._internal._model_construction import ModelMetaclass
 
-from cosmostic.query.field import FieldProxy
+from cosmostic.field import FieldProxy
 
 
 class MetaModel(ModelMetaclass):
